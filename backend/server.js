@@ -7,6 +7,16 @@ const cookiePaser = require('cookie-parser');
 
 const app = express()
 
+//helps to send info from back to front and vice versa
+app.use(express.json())
+app.use(express.urlencoded({extended : false}))
+app.use(cookiePaser())
+app.use(bodyParser.json())
+app.use(cors({
+    origin : ["http://localhost:3000" , "https://auth-app.vercel.app" ],
+    credentials : true
+}))
+
 app.get("/" , (req , res , next)=>{
     res.send("Home page")
 })
