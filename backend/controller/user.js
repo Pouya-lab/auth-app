@@ -1,11 +1,11 @@
 
 
 
-const registerUser = async (req , res ) =>{
+exports.registerUser = async (req , res ) =>{
     res.send("Register User")
 }
 
 
-module.exports = {
-    registerUser
-} 
+// module.exports = {
+//     registerUser
+// } 
