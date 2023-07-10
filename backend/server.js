@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookiePaser = require('cookie-parser');
+const userRoute = require('./routes/user')
 
 const app = express()
 
@@ -16,6 +17,8 @@ app.use(cors({
     origin : ["http://localhost:3000" , "https://auth-app.vercel.app" ],
     credentials : true
 }))
+
+app.use("/api/users" , userRoute)
 
 app.get("/" , (req , res , next)=>{
     res.send("Home page")
