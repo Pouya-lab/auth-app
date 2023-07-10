@@ -56,7 +56,9 @@ const userSchema = new mongoose.Schema(
     },
     
     {
+        //for updated at and created at
         timestamps : true , 
+        //for not having a empty obj in database
         minimize : false ,
     }
 )
