@@ -5,6 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookiePaser = require('cookie-parser');
 const userRoute = require('./routes/user')
+const errorHandler = require('./middleware/errorMiddleware')
 
 const app = express()
 
@@ -23,6 +24,9 @@ app.use("/api/users" , userRoute)
 app.get("/" , (req , res , next)=>{
     res.send("Home page")
 })
+
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000 
 
