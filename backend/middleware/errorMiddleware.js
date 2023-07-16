@@ -11,4 +11,6 @@ const errorHandler = (err , req , res , next ) => {
 
 }
 
+module.exports = errorHandler
+
 //this module helps us to see where does the error come from so that we could handle the problem

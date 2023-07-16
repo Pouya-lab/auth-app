@@ -9,7 +9,7 @@ const errorHandler = require('./middleware/errorMiddleware')
 
 const app = express()
 
-//helps to send info from back to front and vice versa
+//helps to send info from back to front and vice versa , body parser is not needed because it is inside express in new version
 app.use(express.json())
 app.use(express.urlencoded({extended : false}))
 app.use(cookiePaser())
