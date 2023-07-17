@@ -140,7 +140,15 @@ exports.loginUser = asyncHandler( async (req , res)=>{
 
 } )
 
-
-// module.exports = {
-//     registerUser
-// } 
+//logout user
+exports.logoutUser = asyncHandler( async (req , res)=>{
+    //expire cookie to logout user and for token value we send empty string 
+    res.cookie("token" , "" , {
+        path : '/',
+        httpOnly : true ,
+        expires : new Date(0), //this time is going to expire the user and kick them out
+        sameSite : "none",
+        secure : true
+    })
+    return res.status(200).json({ mssg : "Logout successful" })
+})
