@@ -77,6 +77,69 @@ exports.registerUser = asyncHandler(
     }
  ) 
 
+ //checking for login user validation with backend data
+exports.loginUser = asyncHandler( async (req , res)=>{
+    const { email , password } = req.body
+
+    //validation
+    if( !email || !password ){
+        res.status(400)
+        throw new Error("Please add new password!!")
+    }
+
+    //if user exists
+    const user = await User.findOne({ email })
+
+    //if user does not exists
+    if(!user){
+        res.status(404)
+        throw new Error("user not found!! Please sign up")
+    }
+
+    //comparing the given password with the hashed password in database
+    const passwordIsCorrect = await bcrypt.compare(password , user.password)
+    if(!passwordIsCorrect){
+        res.status(400)
+        throw new Error("Password is not correct")
+    }
+
+    //trigger 2factor authentication for user device that is using to connect
+
+    //now that everything is alright we have to login the user
+
+    //generate Token for the action
+    const token = generateToken(user._id)
+    if (user || passwordIsCorrect) {
+
+        res.cookie("token" , token , {
+            path : '/',
+            httpOnly : true ,
+            expires : new Date(Date.now() + 1000 * 86400),
+            sameSite : "none",
+            secure : true
+        })
+        //sending datas from DB to front
+        const { _id , name , email , phone , bio , photo , role , isVerified } = user
+            res.status(200).json({
+                _id ,
+                name , 
+                email , 
+                phone , 
+                bio , 
+                photo , 
+                role , 
+                isVerified , 
+                token
+            })        
+
+    }
+    else{
+        res.status(500)
+        throw new Error("Something went wrong!! Please try again")
+    }
+
+} )
+
 
 // module.exports = {
 //     registerUser
