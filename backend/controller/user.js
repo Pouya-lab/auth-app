@@ -78,6 +78,7 @@ exports.registerUser = asyncHandler(
  ) 
 
  //checking for login user validation with backend data
+ //how we login a user?? => by sending cookies to clients(browser)
 exports.loginUser = asyncHandler( async (req , res)=>{
     const { email , password } = req.body
 
@@ -151,4 +152,9 @@ exports.logoutUser = asyncHandler( async (req , res)=>{
         secure : true
     })
     return res.status(200).json({ mssg : "Logout successful" })
+})
+
+//for getting each user loged in in our app
+exports.getUser = asyncHandler(async (req , res)=>{
+    res.send("get user")
 })

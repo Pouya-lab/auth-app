@@ -2,12 +2,16 @@ const express = require('express')
 const router = express.Router()
 
 const userController = require('../controller/user')
+const { protect } = require('../middleware/authMiddleware')
 
 
 router.post("/register" , userController.registerUser)
 
-router.get("/login" , userController.loginUser)
+router.post("/login" , userController.loginUser)
 
 router.get("/logout" , userController.logoutUser)
+//add protect middleware for users to getUser
+// router.get("/getUser" , protect , userController.getUser)
+router.get("/getUser" , userController.getUser)
 
 module.exports = router
