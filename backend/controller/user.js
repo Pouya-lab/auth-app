@@ -85,7 +85,7 @@ exports.loginUser = asyncHandler( async (req , res)=>{
     //validation
     if( !email || !password ){
         res.status(400)
-        throw new Error("Please add new password!!")
+        throw new Error("Please add email or password!!")
     }
 
     //if user exists
@@ -110,14 +110,15 @@ exports.loginUser = asyncHandler( async (req , res)=>{
 
     //generate Token for the action
     const token = generateToken(user._id)
-    if (user || passwordIsCorrect) {
+    if (user && passwordIsCorrect) {
 
         res.cookie("token" , token , {
             path : '/',
             httpOnly : true ,
             expires : new Date(Date.now() + 1000 * 86400),
             sameSite : "none",
-            secure : true
+            secure : false
+            //TODO change secure to true for deployment
         })
         //sending datas from DB to front
         const { _id , name , email , phone , bio , photo , role , isVerified } = user
@@ -156,5 +157,5 @@ exports.logoutUser = asyncHandler( async (req , res)=>{
 
 //for getting each user loged in in our app
 exports.getUser = asyncHandler(async (req , res)=>{
-    res.send("get user")
+    res.send("get useer")
 })

@@ -6,7 +6,8 @@ const jwt = require('jsonwebtoken')
 // how we login a user?? => by sending cookies to clients(browser)
 exports.protect = asyncHandler( async (req , res , next)=>{
     
-        const token = req.cookies.token
+        try {
+            const token = req.cookies.token
         console.log(token);
         if(!token){
             res.status(401)
@@ -30,9 +31,9 @@ exports.protect = asyncHandler( async (req , res , next)=>{
 
         req.user = user
         next()
-
- 
-        // res.status(401)
-        // throw new Error("Not authoruzed. Please ")
+        } catch (error) {
+            res.status(401)
+        throw new Error("Not authoruzed. Please ")
+        }
     
 })

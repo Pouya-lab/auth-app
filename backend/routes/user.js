@@ -11,7 +11,6 @@ router.post("/login" , userController.loginUser)
 
 router.get("/logout" , userController.logoutUser)
 //add protect middleware for users to getUser
-// router.get("/getUser" , protect , userController.getUser)
-router.get("/getUser" , userController.getUser)
+router.get("/getUser" , protect , userController.getUser)
 
 module.exports = router
