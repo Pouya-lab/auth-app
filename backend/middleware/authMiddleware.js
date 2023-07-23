@@ -35,32 +35,32 @@ exports.protect = asyncHandler( async (req , res , next)=>{
             res.status(401)
         throw new Error("Not authoruzed. Please ")
         }
-    
+    // 64bd54cd3ccacc3d4eae7f40
 })
 
-exports.adminOnly = async (req , res , next)=>{
-    if(req.user || req.user.role === "admin"){
+exports.adminOnly = asyncHandler(  async (req , res , next)=>{
+    if(req.user && req.user.role === "admin"){
         next()
     }else{
         res.status(401)
         throw new Error("Not authorized!!!")
     }
-}
+} )
 
-exports.authorOnly = async (req , res , next)=>{
+exports.authorOnly = asyncHandler( async (req , res , next)=>{
     if(req.user.role === "author" || req.user.role === "admin"){
         next()
     }else{
         res.status(401)
         throw new Error("Not authorized!!!")
     }
-}
+} )
 
-exports.verifiedOnly = async (req , res , next)=>{
+exports.verifiedOnly = asyncHandler(  async (req , res , next)=>{
     if(req.user && req.user.isVerified ){
         next()
     }else{
         res.status(401)
         throw new Error("Not authorized!!! Account is not verified")
     }
-}
+} )
