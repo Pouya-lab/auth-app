@@ -13,4 +13,7 @@ router.get("/logout" , userController.logoutUser)
 //add protect middleware for users to getUser
 router.get("/getUser" , protect , userController.getUser)
 
+router.patch("/updateUser" , protect , userController.updateUser)
+
+
 module.exports = router

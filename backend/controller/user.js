@@ -176,3 +176,36 @@ exports.getUser = asyncHandler(async (req , res)=>{
         throw new Error("User not found")
     }
 })
+    //for updating users data
+exports.updateUser = asyncHandler(async (req , res)=>{
+    const user = await User.findById(req.user._id)
+
+    if (user) {
+        const { name , email , phone , bio , photo , role , isVerified } = user
+        // if the name has updated its ok but if its not it should be ok too so we add \\ name to it
+        user.email = req.body.email || email
+        user.name = req.body.name || name
+        user.phone = req.body.phone || phone
+        user.bio = req.body.bio || bio
+        user.photo = req.body.photo || photo
+
+        const updatedUser = await user.save()
+        //sends the updated data to front
+        res.status(200).json({ 
+            name : updatedUser.name , 
+            email : updatedUser.email, 
+            phone : updatedUser.phone, 
+            bio : updatedUser.bio, 
+            photo : updatedUser.photo , 
+            role : updatedUser.role, 
+            isVerified : updatedUser.isVerified, 
+        })    
+
+
+    } else {
+        res.status(404)
+        throw new Error("User not found")
+    }
+})
+
+
