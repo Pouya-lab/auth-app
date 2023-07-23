@@ -37,3 +37,30 @@ exports.protect = asyncHandler( async (req , res , next)=>{
         }
     
 })
+
+exports.adminOnly = async (req , res , next)=>{
+    if(req.user || req.user.role === "admin"){
+        next()
+    }else{
+        res.status(401)
+        throw new Error("Not authorized!!!")
+    }
+}
+
+exports.authorOnly = async (req , res , next)=>{
+    if(req.user.role === "author" || req.user.role === "admin"){
+        next()
+    }else{
+        res.status(401)
+        throw new Error("Not authorized!!!")
+    }
+}
+
+exports.verifiedOnly = async (req , res , next)=>{
+    if(req.user && req.user.isVerified ){
+        next()
+    }else{
+        res.status(401)
+        throw new Error("Not authorized!!! Account is not verified")
+    }
+}
