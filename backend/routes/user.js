@@ -21,6 +21,7 @@ router.get("/getUsers" , authMiddleware.protect  , authMiddleware.authorOnly ,  
 
 router.get("/loginStatus" , userController.loginStatus)
 
+router.post("/upgradeUser" , authMiddleware.protect  , authMiddleware.adminOnly ,  userController.upgradeUser)
 
 
 module.exports = router

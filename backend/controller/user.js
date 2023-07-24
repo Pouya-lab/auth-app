@@ -247,3 +247,21 @@ exports.loginStatus = asyncHandler(async (req , res)=>{
     }
 
 })
+
+exports.upgradeUser = asyncHandler(async(req , res)=>{
+    //for upgrading a user we need to update role and id together
+    const { role , id } = req.body
+
+    const user = await User.findById(id)
+
+    if(!user){
+        res.status(500)
+        throw new Error("user not found")
+    }
+    //user.role is equal to the role we recieved from body{code above}
+    user.role = role
+    await user.save()
+
+    res.status(200).json({mssg : `user role updated to ${role}`})
+
+})
