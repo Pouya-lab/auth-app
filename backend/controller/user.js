@@ -3,6 +3,7 @@ const User = require('../model/user')
 const bcrypt = require('bcryptjs')
 const { generateToken } = require('../util')
 var parser = require('ua-parser-js')
+const jwt = require('jsonwebtoken')
 
 exports.registerUser = asyncHandler( 
     async (req , res ) =>{
@@ -227,4 +228,22 @@ exports.getUsers = asyncHandler(async (req , res)=>{
         throw new Error("Something went wrong")
     }
     res.status(200).json(users)
+})
+
+exports.loginStatus = asyncHandler(async (req , res)=>{
+    const token = req.cookies.token
+
+    if(!token){
+        return res.json(false)
+    }
+
+    //verify token
+    const verified =  jwt.verify( token , process.env.JWT_SECRET )
+
+    if(verified){
+        return res.json(true)
+    }else{
+        return res.json(false)
+    }
+
 })

@@ -19,5 +19,8 @@ router.delete("/:id" , authMiddleware.protect , authMiddleware.adminOnly ,  user
 
 router.get("/getUsers" , authMiddleware.protect  , authMiddleware.authorOnly ,  userController.getUsers)
 
+router.get("/loginStatus" , userController.loginStatus)
+
+
 
 module.exports = router
