@@ -219,3 +219,12 @@ exports.deleteUser = asyncHandler(async (req , res)=>{
     await user.deleteOne()
     res.status(200).json({ mssg : "User deleted succesfully!! "})
 })
+
+exports.getUsers = asyncHandler(async (req , res)=>{
+    const users = await User.find().sort("-createdAt").select("-password")
+    if(!users){
+        res.status(500)
+        throw new Error("Something went wrong")
+    }
+    res.status(200).json(users)
+})

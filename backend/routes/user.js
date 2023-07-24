@@ -17,6 +17,7 @@ router.patch("/updateUser" , authMiddleware.protect , userController.updateUser)
 //the id is send as params
 router.delete("/:id" , authMiddleware.protect , authMiddleware.adminOnly ,  userController.deleteUser)
 
+router.get("/:id" , authMiddleware.protect  , authMiddleware.authorOnly ,  userController.getUsers)
 
 
 module.exports = router
