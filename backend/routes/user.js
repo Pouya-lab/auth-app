@@ -23,5 +23,8 @@ router.get("/loginStatus" , userController.loginStatus)
 
 router.post("/upgradeUser" , authMiddleware.protect  , authMiddleware.adminOnly ,  userController.upgradeUser)
 
+router.post("/sendAutomatedEmail" , authMiddleware.protect  , userController.sendAutomatedEmail)
+
+
 
 module.exports = router

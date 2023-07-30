@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs')
 const { generateToken } = require('../util')
 var parser = require('ua-parser-js')
 const jwt = require('jsonwebtoken')
+const { sendEmail } = require('../util/sendEmail')
 
 exports.registerUser = asyncHandler( 
     async (req , res ) =>{
@@ -264,4 +265,41 @@ exports.upgradeUser = asyncHandler(async(req , res)=>{
 
     res.status(200).json({mssg : `user role updated to ${role}`})
 
+})
+
+exports.sendAutomatedEmail = asyncHandler(async (req , res)=>{
+    const { subject , send_to , reply_to , template , url  } = req.body
+
+    if(!subject || !send_to || !reply_to || !template){
+        res.status(404)
+        throw new Error("missing email parameter")
+    }
+
+    // get user
+    const user = await User.findOne({ email : send_to })
+    if(!user){
+        res.status(404)
+        throw new Error("user not found")
+    }
+
+    const sent_from = process.env.EMAIL_USER
+    const name = user.name
+    const link = `${process.env.FRONTEND_URL}${url}`
+    
+    try {
+        await sendEmail(
+            subject ,
+            send_to ,
+            sent_from ,
+            reply_to ,
+            template ,
+            name , 
+            link
+        )
+        res.send(200).json({ mssg : "email sent"})
+    } 
+    catch (error) {
+        res.status(500)
+        throw new Error("email did not send try again later")
+    }
 })
