@@ -1,10 +1,12 @@
 const asyncHandler = require('express-async-handler')
 const User = require('../model/user')
 const bcrypt = require('bcryptjs')
-const { generateToken } = require('../util')
+const { generateToken, hashToken } = require('../util')
 var parser = require('ua-parser-js')
 const jwt = require('jsonwebtoken')
 const { sendEmail } = require('../util/sendEmail')
+const Token = require('../model/token')
+const crypto = require("crypto")
 
 exports.registerUser = asyncHandler( 
     async (req , res ) =>{
@@ -78,6 +80,132 @@ exports.registerUser = asyncHandler(
 
     }
  ) 
+ 
+ //send verification email
+ //TODO no email was recieved
+ exports.sendVerificationEmail = asyncHandler( async( req , res )=>{
+    
+    const user = await User.findById(req.user._id)
+
+    if(!user){
+        res.status(404)
+        throw new Error("user not found!! Please sign up")
+    }
+
+    if(user.isVerified){
+        res.status(400)
+        throw new Error("user is already verified")
+    }
+    //delete token if it exists in DB
+    let token = await Token.findOne({ 
+        userId : user._id 
+    })
+    if(token){
+        await token.deleteOne()
+    }
+
+    //create verification token and save to DB
+    const verificationToken = crypto.randomBytes(32).toString("hex") + user._id
+    console.log(verificationToken);
+
+    //hash Token and save
+    const hashedToken = hashToken(verificationToken)
+    await new Token({
+        userId : user._id ,
+        vToken : hashedToken ,
+        createdAt : Date.now(),
+        expiresAt : Date.now() + 60*(60*1000) //60 minutes
+    }).save()
+
+    //construct verification URL
+    const verificationUrl = `${process.env.FRONTEND_URL}/verify/${verificationToken}`
+
+    //send Email
+   const subject = "Verify your account"
+   const send_to = user.email
+   const sent_from = process.env.EMAIL_USER
+   const reply_to = "no@mail.com"
+   const template = "verifyEmail"
+   const name = user.name
+   const link = verificationUrl
+
+   try {
+    await sendEmail(
+        subject ,
+        send_to ,
+        sent_from ,
+        reply_to ,
+        template ,
+        name , 
+        link
+    )
+    res.status(200).json({ mssg : "email sent"})
+    } 
+    catch (error) {
+        res.status(500)
+        throw new Error("email did not send try again later")
+    }
+
+// const user = await User.findById(req.user._id);
+
+//   if (!user) {
+//     res.status(404);
+//     throw new Error("User not found");
+//   }
+
+//   if (user.isVerified) {
+//     res.status(400);
+//     throw new Error("User already verified");
+//   }
+
+//   // Delete Token if it exists in DB
+//   let token = await Token.findOne({ userId: user._id });
+//   if (token) {
+//     await token.deleteOne();
+//   }
+
+//   //   Create Verification Token and Save
+//   const verificationToken = crypto.randomBytes(32).toString("hex") + user._id;
+//   console.log(verificationToken);
+
+//   // Hash token and save
+//   const hashedToken = hashToken(verificationToken);
+//   await new Token({
+//     userId: user._id,
+//     vToken: hashedToken,
+//     createdAt: Date.now(),
+//     expiresAt: Date.now() + 60 * (60 * 1000), // 60mins
+//   }).save();
+
+//   // Construct Verification URL
+//   const verificationUrl = `${process.env.FRONTEND_URL}/verify/${verificationToken}`;
+
+//   // Send Email
+//   const subject = "Verify Your Account - AUTH:Z";
+//   const send_to = user.email;
+//   const sent_from = process.env.EMAIL_USER;
+//   const reply_to = "noreply@zino.com";
+//   const template = "verifyEmail";
+//   const name = user.name;
+//   const link = verificationUrl;
+
+//   try {
+//     await sendEmail(
+//       subject,
+//       send_to,
+//       sent_from,
+//       reply_to,
+//       template,
+//       name,
+//       link
+//     );
+//     res.status(200).json({ message: "Verification Email Sent" });
+//   } catch (error) {
+//     res.status(500);
+//     throw new Error("Email not sent, please try again");
+//   }
+
+ } )
 
  //checking for login user validation with backend data
  //how we login a user?? => by sending cookies to clients(browser)

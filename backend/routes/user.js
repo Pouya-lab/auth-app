@@ -25,6 +25,9 @@ router.post("/upgradeUser" , authMiddleware.protect  , authMiddleware.adminOnly 
 
 router.post("/sendAutomatedEmail" , authMiddleware.protect  , userController.sendAutomatedEmail)
 
+router.post("/sendVerificationEmail" , authMiddleware.protect  , userController.sendVerificationEmail)
+
+
 
 
 module.exports = router
