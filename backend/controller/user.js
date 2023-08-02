@@ -489,3 +489,34 @@ exports.resetPass = asyncHandler(async (req , res)=>{
     res.status(200).json({ mssg : "account password successfully reset" }); 
 
 })
+
+exports.changePass = asyncHandler(async (req , res)=>{
+    const user = await User.findById(req.user._id)
+
+    const { oldPassword , password } = req.body
+
+    if(!user){
+        res.status(404)
+        throw new Error("User not found")
+    }
+
+    if(!oldPassword || !password){
+        res.status(400)
+        throw new Error("please enter both old and new password")
+    }
+
+    const passwordIsCorrect = await bcrypt.compare( oldPassword , user.password )
+
+    if(user && passwordIsCorrect){
+        user.password = password
+        await user.save()
+        res.status(200)
+        throw new Error("password changed succesfully")
+    }
+    else{
+        res.status(400)
+        throw new Error("Invalid inputs. Please try again")
+    }
+
+
+} )

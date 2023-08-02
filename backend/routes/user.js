@@ -33,4 +33,6 @@ router.post("/forgotPass" ,  userController.forgotPass)
 
 router.patch("/resetPass/:resetToken" ,  userController.resetPass)
 
+router.patch("/changePass" ,  authMiddleware.protect ,userController.changePass)
+
 module.exports = router
