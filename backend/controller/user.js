@@ -176,7 +176,6 @@ exports.registerUser = asyncHandler(
     await user.save()
 
     res.status(200).json({ mssg : "account verification successful" });
-    throw new Error("user is already verified");
 
  })
 
@@ -403,4 +402,90 @@ exports.sendAutomatedEmail = asyncHandler(async (req , res)=>{
         res.status(500)
         throw new Error("email did not send try again later")
     }
+})
+
+exports.forgotPass = asyncHandler(async ( req , res )=>{
+    const { email } = req.body
+
+    const user = await User.findOne({ email })
+
+    if(!user){
+        res.status(404)
+        throw new Error("User does not exists with this email")
+    }
+
+    let token = await Token.findOne({ 
+        userId : user._id 
+    })
+    if(token){
+        await token.deleteOne()
+    }
+
+    //create verification token and save to DB
+    const resetToken = crypto.randomBytes(32).toString("hex") + user._id
+    console.log(resetToken);
+
+    //hash Token and save
+    const hashedToken = hashToken(resetToken)
+    await new Token({
+        userId : user._id ,
+        rToken : hashedToken ,
+        createdAt : Date.now(),
+        expiresAt : Date.now() + 60*(60*1000) //60 minutes
+    }).save()
+
+    //construct reset URL
+    const resetUrl = `${process.env.FRONTEND_URL}/resetPass/${resetToken}`
+
+    //send Email
+   const subject = "Password reset Request"
+   const send_to = user.email
+   const sent_from = process.env.EMAIL_USER
+   const reply_to = "no@mail.com"
+   const template = "forgottenPass"
+   const name = user.name
+   const link = resetUrl
+
+   try {
+    await sendEmail(
+        subject ,
+        send_to ,
+        sent_from ,
+        reply_to ,
+        template ,
+        name , 
+        link
+    )
+    res.status(200).json({ mssg : "pass reset request granted"})
+    } 
+    catch (error) {
+        res.status(500)
+        throw new Error("email did not send try again later")
+    }
+})
+
+exports.resetPass = asyncHandler(async (req , res)=>{
+    const { resetToken } = req.params
+    const { password } = req.body
+
+    const hashedToken = hashToken(resetToken)
+
+    const userToken = await token.findOne({
+        rToken : hashedToken ,
+        expiresAt : { $gt : Date.now() }
+    })
+    if(!token){
+        res.status(404);
+        throw new Error("expired Token");
+    }
+
+    //find user
+    const user = await User.findOne({ _id : userToken.userId })
+
+    //now reset user
+    user.password = password
+    await user.save()
+
+    res.status(200).json({ mssg : "account password successfully reset" }); 
+
 })

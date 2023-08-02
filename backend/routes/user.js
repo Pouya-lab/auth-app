@@ -29,7 +29,8 @@ router.post("/sendVerificationEmail" , authMiddleware.protect  , userController.
 
 router.patch("/verifyUser/:verificationToken" ,  userController.verifyUser)
 
+router.post("/forgotPass" ,  userController.forgotPass)
 
-
+router.patch("/resetPass/:resetToken" ,  userController.resetPass)
 
 module.exports = router
