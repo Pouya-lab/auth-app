@@ -27,6 +27,8 @@ router.post("/sendAutomatedEmail" , authMiddleware.protect  , userController.sen
 
 router.post("/sendVerificationEmail" , authMiddleware.protect  , userController.sendVerificationEmail)
 
+router.patch("/verifyUser/:verificationToken" , authMiddleware.protect  , userController.verifyUser)
+
 
 
 

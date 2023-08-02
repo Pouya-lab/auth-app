@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken')
 const { sendEmail } = require('../util/sendEmail')
 const Token = require('../model/token')
 const crypto = require("crypto")
+const token = require('../model/token')
 
 exports.registerUser = asyncHandler( 
     async (req , res ) =>{
@@ -82,7 +83,6 @@ exports.registerUser = asyncHandler(
  ) 
  
  //send verification email
- //TODO no email was recieved
  exports.sendVerificationEmail = asyncHandler( async( req , res )=>{
     
     const user = await User.findById(req.user._id)
@@ -145,67 +145,40 @@ exports.registerUser = asyncHandler(
         res.status(500)
         throw new Error("email did not send try again later")
     }
-
-// const user = await User.findById(req.user._id);
-
-//   if (!user) {
-//     res.status(404);
-//     throw new Error("User not found");
-//   }
-
-//   if (user.isVerified) {
-//     res.status(400);
-//     throw new Error("User already verified");
-//   }
-
-//   // Delete Token if it exists in DB
-//   let token = await Token.findOne({ userId: user._id });
-//   if (token) {
-//     await token.deleteOne();
-//   }
-
-//   //   Create Verification Token and Save
-//   const verificationToken = crypto.randomBytes(32).toString("hex") + user._id;
-//   console.log(verificationToken);
-
-//   // Hash token and save
-//   const hashedToken = hashToken(verificationToken);
-//   await new Token({
-//     userId: user._id,
-//     vToken: hashedToken,
-//     createdAt: Date.now(),
-//     expiresAt: Date.now() + 60 * (60 * 1000), // 60mins
-//   }).save();
-
-//   // Construct Verification URL
-//   const verificationUrl = `${process.env.FRONTEND_URL}/verify/${verificationToken}`;
-
-//   // Send Email
-//   const subject = "Verify Your Account - AUTH:Z";
-//   const send_to = user.email;
-//   const sent_from = process.env.EMAIL_USER;
-//   const reply_to = "noreply@zino.com";
-//   const template = "verifyEmail";
-//   const name = user.name;
-//   const link = verificationUrl;
-
-//   try {
-//     await sendEmail(
-//       subject,
-//       send_to,
-//       sent_from,
-//       reply_to,
-//       template,
-//       name,
-//       link
-//     );
-//     res.status(200).json({ message: "Verification Email Sent" });
-//   } catch (error) {
-//     res.status(500);
-//     throw new Error("Email not sent, please try again");
-//   }
-
+    
  } )
+
+ //verify User
+ exports.verifyUser = asyncHandler(async ( req , res )=>{
+    const { verificationToken } = req.params
+
+    const hashedToken = hashToken(verificationToken)
+
+    const userToken = await token.findOne({
+        vToken : hashedToken ,
+        expiresAt : { $gt : Date.now() }
+    })
+    if(!token){
+        res.status(404);
+        throw new Error("expired Token");
+    }
+
+    //find user
+    const user = await User.findOne({ _id : userToken.userId })
+
+    if(user.isVerified){
+        res.status(400);
+        throw new Error("user is already verified");
+    }
+
+    //now verify user
+    user.isVerified = true
+    await user.save()
+
+    res.status(200).json({ mssg : "account verification successful" });
+    throw new Error("user is already verified");
+
+ })
 
  //checking for login user validation with backend data
  //how we login a user?? => by sending cookies to clients(browser)
